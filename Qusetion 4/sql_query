@@ -1,0 +1,61 @@
+SELECT Person.Name as Name,
+		Person.Age as Age,
+		COALESCE(CAST(ParentNames.MotherName AS VARCHAR(10)),'unknown') as MotherName,
+		COALESCE(CAST(ParentNames.FatherName AS VARCHAR(10)),'unknown') as FatherName
+FROM
+
+(SELECT PersonId, MotherName
+
+FROM
+
+(SELECT PersonId, 
+		CONVERT(VARCHAR(60) Person.GivenName+' '+Person.FamilyName) as Name, 
+		DATEDIFF(hour, Person.DOB, GETDATE())/8766 as Age,
+		Gender,
+		ParentId,
+FROM Person
+INNER JOIN PersonParent
+ON Person.PersonId = PersonParent.PersonId) as mothers
+
+WHERE Gender='F'
+
+INNER JOIN 
+
+(SELECT PersonId, Name as FatherName
+FROM 
+	(SELECT PersonId, 
+		CONVERT(VARCHAR(60) Person.GivenName+' '+Person.FamilyName) as Name, 
+		DATEDIFF(hour, Person.DOB, GETDATE())/8766 as Age,
+		Gender,
+		ParentId,
+FROM Person
+INNER JOIN PersonParent
+ON Person.PersonId = PersonParent.PersonId)
+
+
+WHERE Gender='M') as fathers
+
+ON fathers.PersonId = mothers.PersonId
+) as ParentNames
+
+INNER JOIN 
+	(SELECT PersonId, 
+		CONVERT(VARCHAR(60) Person.GivenName+' '+Person.FamilyName) as Name, 
+		DATEDIFF(hour, Person.DOB, GETDATE())/8766 as Age,
+		Gender,
+		ParentId,
+FROM Person
+INNER JOIN PersonParent
+ON Person.PersonId = PersonParent.PersonId) as JoinedTable
+ON ParentName.PersonId =JoinedTable.PersonId
+
+
+
+
+
+
+
+
+
+
+
